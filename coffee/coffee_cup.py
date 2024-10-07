@@ -195,6 +195,7 @@ class CoffeeRenderer:
 
         alpha_min, A_min = self.A_min_scaled
         self.A_min_line = self.ax.axhline(y=A_min/self.upper_limit, xmax=alpha_min, c='c', ls='--')
+        self.A_min_point = self.ax.scatter(alpha_min, A_min/self.upper_limit, s=100, color='c')
 
         
         self.legend = self.ax.legend(loc="upper left")
@@ -266,6 +267,7 @@ class CoffeeRenderer:
             self.A_min_line.set_xdata([0, alpha_min])
             self.A_min_line.set_ydata([A_min, A_min]) # why no scale?
             self.A_min_line.set(label="minimum surface: ({:.2f}π, {:.2f}π)".format(alpha_min/2, A_min))
+            self.A_min_point.set_offsets([alpha_min, A_min])
 
             self.legend = self.ax.legend(loc="upper left")
             self.fig.canvas.draw_idle()
@@ -334,11 +336,12 @@ class CoffeeRenderer:
     
     @property
     def A_min(self):
+        starting_alpha, starting_A = 0, math.pi
         alpha_0, A0 = self.cc.alpha0, self.cc.A(2)
         A2, alpha_2 = self.alpha_2
         extremes = self.cc.A_extremes
 
-        candidates = filter(lambda x: x[0] <= alpha_2, [(alpha_0, A0)] + extremes)
+        candidates = filter(lambda x: x[0] <= alpha_2, [(starting_alpha, starting_A), (alpha_0, A0)] + extremes)
 
         return min(list(candidates) + [(alpha_2, A2)], key=lambda x: x[1])
     
