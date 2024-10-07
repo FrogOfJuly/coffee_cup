@@ -92,24 +92,30 @@ class CoffeeCup:
 
     A_eff_extremes = None
 
+    @staticmethod
+    def find_A_extremes():
+        # We need to compute it only once
+        if CoffeeCup.A_eff_extremes is None:
+            r = scipy.optimize.minimize_scalar( lambda x : -CoffeeCup.A_prime_eff(x)
+                                            , bounds=[0.0, 2.0]
+                                            , bracket=[0.0, 1.0, 2.0]
+                                            , method="bounded")
+                
+            assert r.success, f"Failed to find extreme of A'eff: {r.message}"
+
+            CoffeeCup.A_eff_extremes = (r.x, CoffeeCup.A_prime_eff(r.x))
+        
+            
+        return CoffeeCup.A_eff_extremes  
+
+
     @property
     def A_extremes(self):
         # We need to locate roots to employ numeric solver. 
         # From the plot of A_prime_eff it is clear that if there are two roots of 
         # A_prime_eff(t) = a^2, then they are on different sides of its maximum.
 
-        if CoffeeCup.A_eff_extremes is None:    
-            # We should compute it only one time
-            r = scipy.optimize.minimize_scalar( lambda x : -CoffeeCup.A_prime_eff(x)
-                                        , bounds=[0.0, 2.0]
-                                        , bracket=[0.0, 1.0, 2.0]
-                                        , method="bounded")
-            
-            assert r.success, f"Failed to find extreme of A'eff: {r.message}"
-            
-            CoffeeCup.A_eff_extremes = r.x, CoffeeCup.A_prime_eff(r.x)
-
-        middle, a_max_sq = CoffeeCup.A_eff_extremes
+        middle, a_max_sq = CoffeeCup.find_A_extremes()
 
         if self.a*self.a > a_max_sq:
             return []
