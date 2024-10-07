@@ -192,6 +192,10 @@ class CoffeeRenderer:
             line.set(xdata=[ext, ext], ydata=[0.0,ext_value/self.upper_limit], c='r', ls=':', label="extreme_{} = {:.2f}π".format(i, ext/2))
             line.set(visible=True)
 
+
+        alpha_min, A_min = self.A_min_scaled
+        self.A_min_line = self.ax.axhline(y=A_min/self.upper_limit, xmax=alpha_min, c='c', ls='--')
+
         
         self.legend = self.ax.legend(loc="upper left")
         self.fig.canvas.toolbar_position = 'bottom'
@@ -257,7 +261,11 @@ class CoffeeRenderer:
                     ann = self.ax.annotate("{:.2f}π".format(y), (x, y - 0.2))
 
                 self.anns.append(ann)
-                
+
+            alpha_min, A_min = self.A_min_scaled
+            self.A_min_line.set_xdata([0, alpha_min])
+            self.A_min_line.set_ydata([A_min, A_min]) # why no scale?
+            self.A_min_line.set(label="minimum surface: ({:.2f}π, {:.2f}π)".format(alpha_min/2, A_min))
 
             self.legend = self.ax.legend(loc="upper left")
             self.fig.canvas.draw_idle()
@@ -322,4 +330,20 @@ class CoffeeRenderer:
     @property
     def A_extremes_scaled(self):
         return [(CoffeeRenderer.scale_alpha(ext), CoffeeRenderer.scale_area(ext_value)) for (ext, ext_value) in self.cc.A_extremes]
+
+    
+    @property
+    def A_min(self):
+        alpha_0, A0 = self.cc.alpha0, self.cc.A(2)
+        A2, alpha_2 = self.alpha_2
+        extremes = self.cc.A_extremes
+
+        candidates = filter(lambda x: x[0] <= alpha_2, [(alpha_0, A0)] + extremes)
+
+        return min(list(candidates) + [(alpha_2, A2)], key=lambda x: x[1])
+    
+    @property
+    def A_min_scaled(self):
+        alpha, A = self.A_min
+        return CoffeeRenderer.scale_alpha(alpha), CoffeeRenderer.scale_area(A)
     
