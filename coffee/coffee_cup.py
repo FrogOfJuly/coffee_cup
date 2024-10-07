@@ -3,7 +3,7 @@ import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
-# This is a class describing the coffee cup problem
+# This class describes the coffee cup problem
 class CoffeeCup:
     @staticmethod
     def q(t): 
@@ -77,33 +77,39 @@ class CoffeeCup:
         
     ## Finding derivative zeros
 
+    # It's not A'(t), but an equivalent thing such that A'(t) = 0 \iff A_prime_eff(t) = a^2
+    @staticmethod
+    def A_prime_eff(t):
+        sf = CoffeeCup.SF(t)
+        vf = CoffeeCup.VF(t)
+        q  = math.pow(CoffeeCup.q(t), 0.5)
+        up = 2*q*vf*vf*vf
+        down = sf*sf - 2*q*vf
+        if up == 0.0 and down == 0.0:
+            return 0.0
+        else:
+            return up/down
+
+    A_eff_extremes = None
+
     @property
     def A_extremes(self):
-        # It's not A'(t), but an equivalent thing such that A'(t) = 0 \iff A_prime_eff(t) = a^2
-        def A_prime_eff(t):
-            sf = CoffeeCup.SF(t)
-            vf = CoffeeCup.VF(t)
-            q  = math.pow(CoffeeCup.q(t), 0.5)
-            up = 2*q*vf*vf*vf
-            down = sf*sf - 2*q*vf
-            if up == 0.0 and down == 0.0:
-                return 0.0
-            else:
-                return up/down
-            
         # We need to locate roots to employ numeric solver. 
         # From the plot of A_prime_eff it is clear that if there are two roots of 
         # A_prime_eff(t) = a^2, then they are on different sides of its maximum.
-            
-        r = scipy.optimize.minimize_scalar( lambda x : -A_prime_eff(x)
-                                      , bounds=[0.0, 2.0]
-                                      , bracket=[0.0, 1.0, 2.0]
-                                      , method="bounded")
-        if not r.success:
-            print(f"Failed to find extreme of A'eff: {r.message}")
-            return None
 
-        middle, a_max_sq = r.x, A_prime_eff(r.x)
+        if CoffeeCup.A_eff_extremes is None:    
+            # We should compute it only one time
+            r = scipy.optimize.minimize_scalar( lambda x : -CoffeeCup.A_prime_eff(x)
+                                        , bounds=[0.0, 2.0]
+                                        , bracket=[0.0, 1.0, 2.0]
+                                        , method="bounded")
+            
+            assert r.success, f"Failed to find extreme of A'eff: {r.message}"
+            
+            CoffeeCup.A_eff_extremes = r.x, CoffeeCup.A_prime_eff(r.x)
+
+        middle, a_max_sq = CoffeeCup.A_eff_extremes
 
         if self.a*self.a > a_max_sq:
             return []
@@ -114,7 +120,7 @@ class CoffeeCup:
         # there are two roots on each side from middle
 
         def obj_fun(x):
-            return A_prime_eff(x) - self.a*self.a
+            return CoffeeCup.A_prime_eff(x) - self.a*self.a
 
 
         left_root, left_result = scipy.optimize.brentq(obj_fun, 0.0, middle, full_output=True)
