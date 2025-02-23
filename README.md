@@ -8,7 +8,7 @@ Assume that the cup is a cylinder with a circle base and the coffee is a \"geome
 
 There are many ways to minimize cooling. One of them is to reduce the exposed surface area of the coffee, by creating an angle between gravitational force and the main axes of the cup. The question is: Given the volume of coffee and parameters of the cup, what angle between the cup's main axis and gravity provides a minimum of exposed surface?
 
-# Solution
+## Solution
 
 
 
