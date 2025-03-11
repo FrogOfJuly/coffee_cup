@@ -2,7 +2,7 @@
 
 The problem statement is as follows.
 
-Imagine having a cup of magnificent, fresh, and hot coffee. It is a known fact that as it cools down the magnificence levels drop too sharply. Thus, to avoid such a fate, it is desired to minimize cooling.
+Imagine having a cup of magnificent, fresh, hot coffee. Unfortunatly, as it cools down the magnificence level drops sharply. Thus, to avoid such fate, it is desired to minimize cooling.
 
 Assume that the cup is a cylinder with a circle base and the coffee is a \"geometric\" fluid: always at rest, with its surface perpendicular to gravity.
 
